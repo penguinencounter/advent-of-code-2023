@@ -1,5 +1,5 @@
 # Day 2, Factorio edition: usage instructions
-
+![Image of completed setup. Text plates show result for my input.](https://raw.githubusercontent.com/penguinencounter/advent-of-code-2023/main/day2_factorio/completed-setup-overview.png)
 ## Mods
 This set of blueprints use the following mods in order to annotate and make displaying signals easier.
 The components from the mods could theoretically be removed or replaced with vanilla combinators.
@@ -12,6 +12,8 @@ The components from the mods could theoretically be removed or replaced with van
 * **Editor Extensions** easily accessible infinite power, sandbox world highly recommended
 
 ## Setup
+Install the `requirements.txt` file to get the `factorio-draftsman` library for programmatically generating blueprints.
+
 Create a file in the current working directory named `2.in` and paste your input inside. Then run `generate.py`.
 In Factorio, import the `blueprints.txt` (static) blueprint book and the `bp.txt` generated from your input.
 
