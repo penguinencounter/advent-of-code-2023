@@ -28,3 +28,30 @@ Activate the *restart* button and wait for the numbers to settle :)
 > [!WARNING]
 > Do not mash the restart button. This causes inaccuracies because of
 > data getting stuck in the memory cells during the reset process.
+
+## How does the translation work?
+The Python script turns each game into a sequence of combinators. 
+For example, this represents a game:
+![Image of a row of combinators representing a game.](https://raw.githubusercontent.com/penguinencounter/advent-of-code-2023/main/day2_factorio/game-altmode.png)
+
+The first 6 combinators represent *rounds*. Inside, the colored
+signals represent the number of that color cube was drawn.
+
+![Image of a Constant Combinator showing the round data.](https://raw.githubusercontent.com/penguinencounter/advent-of-code-2023/main/day2_factorio/round-contents.png)
+
+The `M` value determines the order the instructions are loaded in.
+Higher numbers are loaded later, and the current instruction is controlled
+by the Timing circuits.
+
+After the rounds, there's an instruction that signals the end of the game.
+
+![Image of a Constant Combinator showing the end-of-game packet.](https://raw.githubusercontent.com/penguinencounter/advent-of-code-2023/main/day2_factorio/end-of-game-contents.png)
+
+The `E` signal triggers the calculation circuitry. `G` is the current game number (for part 1)
+
+Finally, after the end-of-game instruction, there's a reset instruction to clear the 
+memory for the next game.
+
+![Image of a Constant Combinator showing the reset packet.](https://raw.githubusercontent.com/penguinencounter/advent-of-code-2023/main/day2_factorio/reset-contents.png)
+
+If you somehow get the result for part 1 or 2 to be exactly `2147483647` then the reset circuits will break :)
