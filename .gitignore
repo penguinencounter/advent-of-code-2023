@@ -1,3 +1,4 @@
 *.in
 bp.txt
 rom.mcfunction
+.idea/

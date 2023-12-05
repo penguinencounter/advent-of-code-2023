@@ -5,12 +5,6 @@ with open("5.in") as f:
     m = f.read()
     d = m.splitlines()
 
-seeds = list(map(int, re.findall(r"\d+", d[0])))
-inputspace_size = 0
-for k in range(0, len(seeds), 2):
-    inputspace_size += seeds[1]
-print(inputspace_size)
-
 
 class mapper:
     def __init__(self, inL, inR, outL, outR):
@@ -38,6 +32,29 @@ class mapper:
 
         return mapper(
             self.inL + alpha, self.inR + beta, self.outL + alpha, self.outR + beta
+        )
+
+    def overlap2(self, above: 'mapper') -> Optional['mapper']:
+        alpha = max(self.inL, above.outL) - self.inL
+        beta = min(self.inR, above.outR) - self.inR
+        if abs(alpha) > self.inputArea or abs(beta) > self.inputArea:
+            return None
+        return mapper(
+            self.inL + alpha, self.inR + beta, self.outL + alpha, self.outR + beta
+        )
+
+    def apply(self, below: 'mapper') -> Optional['mapper']:
+        their_persp = below.overlap2(self)
+        if their_persp is None:
+            return None
+        our_persp = self.overlap(below)
+        if our_persp is None:
+            return None
+        return mapper(
+            our_persp.inL,
+            our_persp.inR,
+            their_persp.outL,
+            their_persp.outR
         )
 
     def subtract(self, above: "mapper") -> list["mapper"]:
@@ -101,10 +118,25 @@ class mapper:
     def direct(self) -> 'mapper':
         return mapper(self.inL, self.inR, self.inL, self.inR)
 
+    def __hash__(self):
+        return hash((self.inL, self.inR, self.outL, self.outR))
+
+    @classmethod
+    def from_range(cls, target: range) -> 'mapper':
+        return mapper(target.start, target.stop, target.start, target.stop)
+
     def __repr__(self):
         return (
             f"<{self.inL}, {self.inR} ({self.inputArea}) -> {self.outL}, {self.outR}>"
         )
+
+
+seeds = list(map(int, re.findall(r"\d+", d[0])))
+ranges = []
+for idx in range(0, len(seeds), 2):
+    ranges.append(range(seeds[idx], seeds[idx] + seeds[idx + 1]))
+
+sets = list(map(mapper.from_range, ranges))
 
 
 def parse_map(lines: list[str]) -> list[mapper]:
@@ -132,43 +164,19 @@ for group in groups:
         n = parse_map(l[1:])
         maps.append(n)
 
-maps = list(reversed(maps))
-# for mapset in maps[0]:
-lowest = sorted(maps[0], key=lambda x: x.outL)[0]
-print(f'targetting {lowest}')
-fragments = [lowest]
-next_up = []
-maps = maps[1:]
+# see 'sets' above...
+up_next = []
 for mapset in maps:
-    while fragments:
-        u = fragments.pop()
-        leftovers = [u]
-        for target in mapset:
-            if (frag := target.overlap(u)) is not None:
-                print('new fragment', frag)
-                next_up.append(frag)
-                leftovers = [partition.subtract(frag) for partition in leftovers]
-                leftovers = [i2 for i1 in leftovers for i2 in i1]
-                leftovers = list(filter(lambda x: x.inputArea > 0, leftovers))
-        if len(leftovers) > 0:
-            print(f'adding these: {list(map(mapper.direct, leftovers))}')
-        next_up.extend(map(mapper.direct, leftovers))
-    fragments = next_up.copy()
-    next_up.clear()
-    print(len(fragments), "fragments")
+    print(sets)
+    for source_range in sets:
+        fragmentation = {source_range}
+        for map_ in mapset:
+            if (overlap := source_range.apply(map_)) is not None:
+                up_next.append(overlap)
+            fragmentation = [x.subtract2(map_) for x in fragmentation]
+            fragmentation = {i2 for i1 in fragmentation for i2 in i1 if i2.inputArea > 0}
+        up_next.extend(map(mapper.direct, fragmentation))
+    sets = up_next.copy()
+    up_next.clear()
 
-lowest2 = sorted(fragments, key=lambda x: x.outL)[0]
-print(lowest2.inL, lowest2)
-
-contestant = lowest2.inL
-# run the gauntlet
-for mapset in reversed(maps):
-    for map_ in mapset:
-        ok, val = map_.of(contestant)
-        if ok:
-            print(f'{contestant} -> {val}')
-            contestant = val
-            break
-print(contestant)
-
-# print(min(seeds))
+print(sets)
