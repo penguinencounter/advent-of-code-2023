@@ -2,6 +2,7 @@
 times = []
 dists = []
 
+
 def bf(t, d):
     counter = 0
     for x in range(t):
@@ -16,4 +17,4 @@ for k, v in zip(times, dists):
     prod *= bf(k, v)
 print(prod)
 
-print(bf(int(''.join(map(str, times))), int(''.join(map(str, dists)))))
+print(bf(int("".join(map(str, times))), int("".join(map(str, dists)))))
