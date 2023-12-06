@@ -175,8 +175,8 @@ for mapset in maps:
                 up_next.append(overlap)
             fragmentation = [x.subtract2(map_) for x in fragmentation]
             fragmentation = {i2 for i1 in fragmentation for i2 in i1 if i2.inputArea > 0}
-        up_next.extend(map(mapper.direct, fragmentation))
+        up_next.extend(fragmentation)
     sets = up_next.copy()
     up_next.clear()
 
-print(sets)
+print(list(sorted(sets, key=lambda x: x.outL)))
