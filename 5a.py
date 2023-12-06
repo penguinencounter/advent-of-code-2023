@@ -34,7 +34,7 @@ class mapper:
             self.inL + alpha, self.inR + beta, self.outL + alpha, self.outR + beta
         )
 
-    def overlap2(self, above: 'mapper') -> Optional['mapper']:
+    def overlap2(self, above: "mapper") -> Optional["mapper"]:
         alpha = max(self.inL, above.outL) - self.inL
         beta = min(self.inR, above.outR) - self.inR
         if abs(alpha) > self.inputArea or abs(beta) > self.inputArea:
@@ -43,19 +43,14 @@ class mapper:
             self.inL + alpha, self.inR + beta, self.outL + alpha, self.outR + beta
         )
 
-    def apply(self, below: 'mapper') -> Optional['mapper']:
+    def apply(self, below: "mapper") -> Optional["mapper"]:
         their_persp = below.overlap2(self)
         if their_persp is None:
             return None
         our_persp = self.overlap(below)
         if our_persp is None:
             return None
-        return mapper(
-            our_persp.inL,
-            our_persp.inR,
-            their_persp.outL,
-            their_persp.outR
-        )
+        return mapper(our_persp.inL, our_persp.inR, their_persp.outL, their_persp.outR)
 
     def subtract(self, above: "mapper") -> list["mapper"]:
         if above.outL >= self.inR:
@@ -86,7 +81,7 @@ class mapper:
         right_side = mapper(self.inR + beta, self.inR, self.outR + beta, self.outR)
         return [left_side, right_side]
 
-    def subtract2(self, below: 'mapper') -> list['mapper']:
+    def subtract2(self, below: "mapper") -> list["mapper"]:
         if below.inL >= self.outR:
             return [self]
         if below.inR < self.outL:
@@ -99,7 +94,7 @@ class mapper:
                     self.inL + (self.inputArea + beta),
                     self.inR,
                     self.outL + (self.inputArea + beta),
-                    self.outR
+                    self.outR,
                 )
             ]
         if beta == 0:
@@ -108,21 +103,21 @@ class mapper:
                     self.inL,
                     self.inR - (self.inputArea - alpha),
                     self.outL,
-                    self.outR - (self.inputArea - alpha)
+                    self.outR - (self.inputArea - alpha),
                 )
             ]
         left_side = mapper(self.inL, self.inL + alpha, self.outL, self.outL + alpha)
         right_side = mapper(self.inR + beta, self.inR, self.outR + beta, self.outR)
         return [left_side, right_side]
 
-    def direct(self) -> 'mapper':
+    def direct(self) -> "mapper":
         return mapper(self.inL, self.inR, self.inL, self.inR)
 
     def __hash__(self):
         return hash((self.inL, self.inR, self.outL, self.outR))
 
     @classmethod
-    def from_range(cls, target: range) -> 'mapper':
+    def from_range(cls, target: range) -> "mapper":
         return mapper(target.start, target.stop, target.start, target.stop)
 
     def __repr__(self):
@@ -174,7 +169,9 @@ for mapset in maps:
             if (overlap := source_range.apply(map_)) is not None:
                 up_next.append(overlap)
             fragmentation = [x.subtract2(map_) for x in fragmentation]
-            fragmentation = {i2 for i1 in fragmentation for i2 in i1 if i2.inputArea > 0}
+            fragmentation = {
+                i2 for i1 in fragmentation for i2 in i1 if i2.inputArea > 0
+            }
         up_next.extend(fragmentation)
     sets = up_next.copy()
     up_next.clear()
