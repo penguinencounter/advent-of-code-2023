@@ -176,4 +176,5 @@ for mapset in maps:
     sets = up_next.copy()
     up_next.clear()
 
+
 print(list(sorted(sets, key=lambda x: x.outL)))
